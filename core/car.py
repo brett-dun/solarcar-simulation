@@ -8,7 +8,10 @@ __email__ = "dunca384@umn.edu"
 from dataclasses import dataclass
 from typing import Optional
 
-
+"""
+SOC lookup table.
+TODO: update this for the current cells.
+"""
 lookup_values = [
     1.0,
     0.999,
@@ -199,8 +202,10 @@ class Car:
     mass: float  # <kg>
     cda: float  # <m^2>
     crr: float
+    idle_power_loss: float  # <W>
     powertrain_efficiency: float
     motor_efficiency: float
+    charger_efficiency: float
     battery: Optional[Battery]
 
     def copy_with(self, **kwargs):

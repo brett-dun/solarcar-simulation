@@ -1,5 +1,5 @@
 """
-Classes that don't have a home.
+Classes that needed a home.
 """
 
 __author__ = "Brett Duncan"

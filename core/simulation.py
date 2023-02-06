@@ -29,7 +29,8 @@ def simulate(race: Race,
              race_state: RaceActions,
              target_speeds: List[Tuple[float, float]],
              checkpoint_time_remaining=0.0,
-             vehicle_speed=0.0) -> Tuple[bool, State, List[Tuple]]:
+             vehicle_speed=0.0,
+             dt=1.0) -> Tuple[bool, State, List[Tuple]]:
     """
     Simulate the race using the provided objects.
 
@@ -52,6 +53,9 @@ def simulate(race: Race,
     :return: Tuple containing whether or not the race could be completed (bool),
     final state, and list containing state information.
     """
+
+    # Add the mass of the two passengers to the car
+    car = car.copy_with(mass=car.mass+2*80.0)
 
     state = copy.deepcopy(state)
 
@@ -126,16 +130,32 @@ def simulate(race: Race,
 
         if car_is_on:
 
-            # TODO
+            """
+            Begin Construction Zone
+
+            This is the code that needs to be modified to really bring everything together.
+            The other important change to make is the ability of the `Race` class to load .kml files.
+            """
+
+            # TODO: calculate this based on where you are along the route
+            angle = 0.0
+            altitude = 0.0
+
+            # TODO: use the irradiance func instead of calculating power from the sun
             # irradiance = irradiance_func(state.distance, state.time)
             irradiance = sun.get_sun_power(sun_altitude)
 
+            # TODO: use weather_func to use real weather
             wind = wind_func(state.distance, state.time)
+            temperature, humidity = 30.0, 0.3
+
+            """
+            End Construction Zone
+            """
 
             rho = calculate_air_density(
                 temperature=temperature, altitude=altitude, humidity=humidity)  # <kg/m^3>
 
-            # TODO: add the weight of the passengers to the car
             ptd = calculate_power_to_drive(
                 car, vehicle_speed, wind_speed=wind, angle=angle, rho=rho, soc=state.soc)
 
@@ -147,7 +167,7 @@ def simulate(race: Race,
 
             max_grid_dc_current = charge_current_limit_lookup(cell_voltage)
             dc_grid_current = min((AC_CHARGE_CURRENT * AC_CHARGE_VOLTAGE *
-                                  charger_efficiency) / battery_voltage, max_grid_dc_current)
+                                  car.charger_efficiency) / battery_voltage, max_grid_dc_current)
             grid_power = dc_grid_current * battery_voltage if grid_charging else 0.0
 
             array_power = array_model(
@@ -157,7 +177,7 @@ def simulate(race: Race,
 
             # Calculate the amount of power the battery is receiving
             # (negative = power out, positive = power in)
-            battery_power = grid_power + array_power - ptd - idle_loss_power
+            battery_power = grid_power + array_power - ptd - car.idle_power_loss
 
             # Use the pack voltage to calculate the current in/out of the battery
             battery_current = battery_power / battery_voltage  # <A>

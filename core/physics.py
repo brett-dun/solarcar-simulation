@@ -41,10 +41,9 @@ def calculate_pressure_at_altitude(altitude: float) -> float:
 
     :return: Pressure in pascals.
     """
-    return 101325.0 * (1.0 - 2.255773e-5 * altitude)  # <pa>
+    return 101325.0 * ((1.0 - 2.255773e-5 * altitude) ** 5.25588)  # <pa>
 
 
-# TODO: this calculation is not correct with humidity (increasing humidity should decrease density)
 def calculate_air_density(temperature: float, altitude: float, humidity: float) -> float:
     """
     Calculate the air density from the given parameters.
